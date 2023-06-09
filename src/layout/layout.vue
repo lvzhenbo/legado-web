@@ -1,9 +1,11 @@
 <template>
   <NLayout has-sider content-style="min-height: 100vh;">
-    <NLayoutSider bordered>
-      <div class="pt-12 px-9 mb-6">
-        <div>阅读</div>
-        <div>清风不识字，何故乱翻书</div>
+    <NLayoutSider bordered collapse-mode="transform" :collapsed-width="0" :collapsed="collapsed">
+      <div class="pt-12 px-8 mb-6">
+        <div class="font-LXGW-WenKai-Screen text-2xl font-medium">阅读</div>
+        <div class="font-LXGW-WenKai-Screen text-base mt-4 text-zinc-400">
+          清风不识字，何故乱翻书
+        </div>
       </div>
       <NMenu :options="menuOptions" :value="menuValue" />
     </NLayoutSider>
@@ -17,11 +19,14 @@
   import type { MenuOption } from 'naive-ui';
   import { RouterLink } from 'vue-router';
   import { findMenuValue } from '@/utils/route';
+  import { changeMenuFoldKey } from '@/utils/provideInject';
 
   const route = useRoute();
   const menuValue = computed(() => {
     return findMenuValue(menuOptions, route.path);
   });
+  const collapsed = ref(false);
+  provide(changeMenuFoldKey, { changeMenuFold });
 
   const menuOptions: MenuOption[] = [
     {
@@ -40,6 +45,9 @@
       path: '/feeds',
     },
   ];
+  function changeMenuFold(value: boolean) {
+    collapsed.value = value;
+  }
 </script>
 
 <style scoped></style>

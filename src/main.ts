@@ -4,6 +4,8 @@ import { createPinia } from 'pinia';
 import App from './App.vue';
 import router from './router';
 
+import 'lxgw-wenkai-screen-webfont/style.css';
+
 // TailwindCSS
 import './styles/tailwind.css';
 

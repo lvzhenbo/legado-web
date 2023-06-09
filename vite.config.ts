@@ -40,4 +40,7 @@ export default defineConfig({
       '#': fileURLToPath(new URL('./types', import.meta.url)),
     },
   },
+  server: {
+    host: true,
+  },
 });
