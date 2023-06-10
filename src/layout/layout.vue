@@ -19,14 +19,13 @@
   import type { MenuOption } from 'naive-ui';
   import { RouterLink } from 'vue-router';
   import { findMenuValue } from '@/utils/route';
-  import { changeMenuFoldKey } from '@/utils/provideInject';
+  import { useCollapsederStore } from '@/stores/collapseder';
 
   const route = useRoute();
   const menuValue = computed(() => {
     return findMenuValue(menuOptions, route.path);
   });
-  const collapsed = ref(false);
-  provide(changeMenuFoldKey, { changeMenuFold });
+  const collapsed = computed(() => useCollapsederStore().collapsed);
 
   const menuOptions: MenuOption[] = [
     {
@@ -45,9 +44,6 @@
       path: '/feeds',
     },
   ];
-  function changeMenuFold(value: boolean) {
-    collapsed.value = value;
-  }
 </script>
 
 <style scoped></style>

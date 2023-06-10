@@ -30,14 +30,13 @@
 
 <script setup lang="ts">
   import { SearchOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@vicons/antd';
-  import { changeMenuFoldKey } from '@/utils/provideInject';
+  import { useCollapsederStore } from '@/stores/collapseder';
 
-  const changeMenuFold = inject<{ changeMenuFold: (value: boolean) => void }>(changeMenuFoldKey);
-  const collapsed = ref(false);
+  const collapsederStore = useCollapsederStore();
+  const collapsed = computed(() => collapsederStore.collapsed);
 
   function toggleMenuFold() {
-    collapsed.value = !collapsed.value;
-    changeMenuFold?.changeMenuFold(collapsed.value);
+    collapsederStore.collapsed = !collapsederStore.collapsed;
   }
 </script>
 
