@@ -20,12 +20,25 @@
   import { RouterLink } from 'vue-router';
   import { findMenuValue } from '@/utils/route';
   import { useCollapsederStore } from '@/stores/collapseder';
+  import { useWindowSize } from '@vueuse/core';
 
   const route = useRoute();
   const menuValue = computed(() => {
     return findMenuValue(menuOptions, route.path);
   });
-  const collapsed = computed(() => useCollapsederStore().collapsed);
+  const collapsederStore = useCollapsederStore();
+  const collapsed = computed(() => collapsederStore.collapsed);
+  const { width } = useWindowSize();
+  if (width.value < 960) {
+    collapsederStore.collapsed = true;
+  }
+  watch(width, () => {
+    if (width.value < 960) {
+      collapsederStore.collapsed = true;
+    } else {
+      collapsederStore.collapsed = false;
+    }
+  });
 
   const menuOptions: MenuOption[] = [
     {
