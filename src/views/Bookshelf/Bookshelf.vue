@@ -2,7 +2,7 @@
   <NLayoutHeader position="absolute" class="z-10">
     <div class="p-2 flex justify-between items-center">
       <div class="mr-2">
-        <NButton quaternary class="!font-LXGW-WenKai-Screen" @click="toggleMenuFold">
+        <NButton quaternary @click="toggleMenuFold">
           <template #icon>
             <NIcon>
               <MenuUnfoldOutlined v-if="collapsed" />
@@ -28,33 +28,46 @@
   <NLayoutContent :native-scrollbar="false" position="absolute" class="pt-[50px]">
     <div class="p-4">
       <NGrid x-gap="20" :cols="6" y-gap="40" item-responsive responsive="screen">
-        <NGi v-for="i in 10" :key="i" span="6 s:3 m:2 l:1 xl:1 xxl:1" class="flex justify-center">
+        <NGi
+          v-for="(item, i) in bookList"
+          :key="i"
+          span="6 s:3 m:2 l:1 xl:1 xxl:1"
+          class="flex justify-center"
+        >
           <NCard
-            title="书名"
+            :title="item.name"
             class="!w-60"
             size="small"
             hoverable
             :theme-overrides="cardThemeOverrides"
+            @click="openBook(i)"
           >
             <template #cover>
-              <img src="https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg" />
+              <img :src="item.coverUrl" />
             </template>
             <div>
-              <div class="text-zinc-500 font-bold">作者·总章节·上次更新时间</div>
-              <div class="text-zinc-400">已读：已读章节</div>
-              <div class="text-zinc-400">最新：最新章节</div>
+              <div class="text-zinc-500 font-bold">
+                {{ item.author }}·共{{ item.totalChapterNum }}章·
+                <NTime :to="item.lastCheckTime" type="relative" />
+              </div>
+              <div class="text-zinc-400">已读：{{ item.durChapterTitle }}</div>
+              <div class="text-zinc-400">最新：{{ item.latestChapterTitle }}</div>
             </div>
           </NCard>
         </NGi>
       </NGrid>
     </div>
   </NLayoutContent>
+  <BookDrawer />
 </template>
 
 <script setup lang="ts">
   import { SearchOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@vicons/antd';
   import { useCollapsederStore } from '@/stores/collapseder';
   import type { CardProps } from 'naive-ui';
+  import type { BookList } from '#/bookshelf';
+  import BookDrawer from './components/BookDrawer.vue';
+  import { bookState } from '@/utils/provideInject';
 
   type CardThemeOverrides = NonNullable<CardProps['themeOverrides']>;
 
@@ -64,10 +77,40 @@
   };
   const collapsederStore = useCollapsederStore();
   const collapsed = computed(() => collapsederStore.collapsed);
+  const bookList = ref<BookList[]>([
+    {
+      author: '作者',
+      bookUrl: '',
+      coverUrl: 'https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg',
+      lastCheckTime: 1686816807172,
+      latestChapterTitle: '最新章节',
+      name: '书名',
+      totalChapterNum: 600,
+      durChapterTitle: '已读章节',
+    },
+    {
+      author: '作者1',
+      bookUrl: '',
+      coverUrl: 'https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg',
+      lastCheckTime: 1686816807172,
+      latestChapterTitle: '最新章节',
+      name: '书名1',
+      totalChapterNum: 600,
+      durChapterTitle: '已读章节',
+    },
+  ]);
+  const show = ref(false);
+  const bookDetail = ref<BookList>({});
 
   function toggleMenuFold() {
     collapsederStore.collapsed = !collapsederStore.collapsed;
   }
+
+  function openBook(index: number) {
+    bookDetail.value = bookList.value[index];
+    show.value = true;
+  }
+  provide(bookState, { show, bookDetail });
 </script>
 
 <style scoped></style>
