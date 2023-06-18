@@ -58,7 +58,7 @@
       </NGrid>
     </div>
   </NLayoutContent>
-  <BookDrawer />
+  <BookDrawer v-model:open="show" :book-detail="bookDetail" />
 </template>
 
 <script setup lang="ts">
@@ -67,7 +67,6 @@
   import type { CardProps } from 'naive-ui';
   import type { BookList } from '#/bookshelf';
   import BookDrawer from './components/BookDrawer.vue';
-  import { bookState } from '@/utils/provideInject';
 
   type CardThemeOverrides = NonNullable<CardProps['themeOverrides']>;
 
@@ -110,7 +109,6 @@
     bookDetail.value = bookList.value[index];
     show.value = true;
   }
-  provide(bookState, { show, bookDetail });
 </script>
 
 <style scoped></style>
