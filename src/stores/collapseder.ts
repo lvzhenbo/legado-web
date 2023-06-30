@@ -5,8 +5,9 @@ export const useCollapsederStore = defineStore(
   'collapseder',
   () => {
     const collapsed = ref(false);
+    const customCollapsed = ref(false);
 
-    return { collapsed };
+    return { collapsed, customCollapsed };
   },
   {
     persist: true,

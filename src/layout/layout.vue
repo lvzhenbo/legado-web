@@ -36,7 +36,9 @@
     if (width.value < 960) {
       collapsederStore.collapsed = true;
     } else {
-      collapsederStore.collapsed = false;
+      if (!collapsederStore.customCollapsed) {
+        collapsederStore.collapsed = false;
+      }
     }
   });
 

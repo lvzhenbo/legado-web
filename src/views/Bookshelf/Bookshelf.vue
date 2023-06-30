@@ -27,23 +27,27 @@
   </NLayoutHeader>
   <NLayoutContent :native-scrollbar="false" position="absolute" class="pt-[50px]">
     <div class="p-4">
-      <NGrid x-gap="20" :cols="6" y-gap="40" item-responsive responsive="screen">
-        <NGi
-          v-for="(item, i) in bookList"
-          :key="i"
-          span="6 s:3 m:2 l:1 xl:1 xxl:1"
-          class="flex justify-center"
-        >
+      <NGrid
+        cols="1 600:2 900:3 1200:4 1500:5 1800:6"
+        x-gap="0 600:20 900:20 1200:20 1500:20 1800:20"
+        y-gap="40"
+        item-responsive
+      >
+        <NGi v-for="(item, i) in bookList" :key="i" span="1" class="flex justify-center">
           <NCard
             :title="item.name"
-            class="!w-60"
+            class="!w-72 min-w-[288px]"
             size="small"
             hoverable
             :theme-overrides="cardThemeOverrides"
             @click="openBook(i)"
           >
             <template #cover>
-              <img :src="item.coverUrl" />
+              <img
+                :src="'http://192.168.101.240:1122/cover?path=' + item.coverUrl"
+                loading="lazy"
+                class="h-[400px] w-full object-cover"
+              />
             </template>
             <div>
               <div class="text-zinc-500 font-bold">
@@ -56,6 +60,7 @@
           </NCard>
         </NGi>
       </NGrid>
+      <div ref="endLoadingRef"></div>
     </div>
   </NLayoutContent>
   <BookDrawer v-model:open="show" :book-detail="bookDetail" />
@@ -67,6 +72,8 @@
   import type { CardProps } from 'naive-ui';
   import type { BookList } from '#/bookshelf';
   import BookDrawer from './components/BookDrawer.vue';
+  import { bookshelf } from '@/api/bookshelf';
+  import { useIntersectionObserver } from '@vueuse/core';
 
   type CardThemeOverrides = NonNullable<CardProps['themeOverrides']>;
 
@@ -76,33 +83,44 @@
   };
   const collapsederStore = useCollapsederStore();
   const collapsed = computed(() => collapsederStore.collapsed);
-  const bookList = ref<BookList[]>([
-    {
-      author: '作者',
-      bookUrl: '',
-      coverUrl: 'https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg',
-      lastCheckTime: 1686816807172,
-      latestChapterTitle: '最新章节',
-      name: '书名',
-      totalChapterNum: 600,
-      durChapterTitle: '已读章节',
-    },
-    {
-      author: '作者1',
-      bookUrl: '',
-      coverUrl: 'https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg',
-      lastCheckTime: 1686816807172,
-      latestChapterTitle: '最新章节',
-      name: '书名1',
-      totalChapterNum: 600,
-      durChapterTitle: '已读章节',
-    },
-  ]);
+  const bookList = ref<BookList[]>([]);
   const show = ref(false);
   const bookDetail = ref<BookList>({});
+  const rawData = ref<BookList[]>([]);
+  const endLoadingRef = ref<HTMLElement | null>(null);
+  const stopFun = ref<() => void>(() => {});
+
+  onMounted(async () => {
+    await getBookshelf();
+    pushData();
+    const { stop } = useIntersectionObserver(endLoadingRef, ([{ isIntersecting }]) => {
+      if (isIntersecting) {
+        pushData();
+      }
+    });
+    stopFun.value = stop;
+  });
+  onUnmounted(() => {
+    stopFun.value();
+  });
+
+  async function getBookshelf() {
+    const res = await bookshelf();
+    rawData.value = res.data.data;
+  }
+
+  function pushData() {
+    const rawDataLength = rawData.value.length;
+    if (rawDataLength === 0) return;
+    if (bookList.value.length === rawDataLength) return;
+    const start = bookList.value.length;
+    const end = Math.min(start + 20, rawDataLength);
+    bookList.value.push(...rawData.value.slice(start, end));
+  }
 
   function toggleMenuFold() {
     collapsederStore.collapsed = !collapsederStore.collapsed;
+    collapsederStore.customCollapsed = collapsederStore.collapsed;
   }
 
   function openBook(index: number) {
