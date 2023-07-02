@@ -44,7 +44,7 @@
           >
             <template #cover>
               <img
-                :src="'http://192.168.101.240:1122/cover?path=' + item.coverUrl"
+                :src="apiUrl + '/cover?path=' + item.coverUrl"
                 loading="lazy"
                 class="h-[400px] w-full object-cover"
               />
@@ -89,6 +89,7 @@
   const rawData = ref<BookList[]>([]);
   const endLoadingRef = ref<HTMLElement | null>(null);
   const stopFun = ref<() => void>(() => {});
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   onMounted(async () => {
     await getBookshelf();

@@ -1,8 +1,8 @@
 import Axios from 'axios';
 
 const axios = Axios.create({
-  baseURL: 'http://192.168.101.240:1122',
-  timeout: 10000,
+  baseURL: import.meta.env.VITE_API_URL as string,
+  timeout: 60000,
   headers: {
     'Content-Type': 'application/json',
   },
